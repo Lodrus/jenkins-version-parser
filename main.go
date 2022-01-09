@@ -12,6 +12,12 @@ import (
 	"text/tabwriter"
 )
 
+type column struct {
+	displayName string
+	enabled     *bool
+	keyName     string
+}
+
 func main() {
 	sourceUrl := "https://updates.jenkins.io/update-center.actual.json"
 
@@ -20,13 +26,7 @@ func main() {
 	// CLI Arguments
 	delimeterFlag := flag.String("d", "", "The delimeter used to separate returned data. Prints table output by default")
 	headerFlag := flag.Bool("h", true, "Print the header row")
-	// PluginsFlag := flag.String("p", "", "A comma-separated list of plugin names to return information for. Use * to list all plugins")
-
-	type column struct {
-		displayName string
-		enabled     *bool
-		keyName     string
-	}
+	pluginsFlag := flag.String("p", "", "A comma-separated list of plugin names to return information for. Use * to list all plugins")
 
 	columns := []column{
 		{"NAME", flag.Bool("n", false, "Print the plugin name"), "name"},
@@ -66,7 +66,7 @@ func main() {
 		delimeter = *delimeterFlag
 	}
 
-	// Header Row
+	// Conditionally print the header row
 	var header string
 	if *headerFlag {
 		for _, col := range columnsFiltered {
@@ -76,12 +76,29 @@ func main() {
 	}
 
 	// Print data for the main jenkins.war
-	var buffer string
-	core := data["core"].(map[string]interface{})
-	for _, col := range columnsFiltered {
-		buffer += fmt.Sprint(core[col.keyName]) + delimeter
+	fmt.Fprintln(writer, getDataAsString(&data, "", &columnsFiltered, delimeter))
+	// Print data for plugins passed as cmdline args
+	if *pluginsFlag != "" {
+		for _, plugin := range strings.Split(*pluginsFlag, ",") {
+			fmt.Fprintln(writer, getDataAsString(&data, plugin, &columnsFiltered, delimeter))
+		}
 	}
-	fmt.Fprintln(writer, strings.TrimSuffix(buffer, delimeter))
+}
+
+func getDataAsString(data *map[string]interface{}, plugin string, columns *[]column, delimeter string) string {
+	var dataRoot map[string]interface{}
+	if plugin == "" {
+		dataRoot = (*data)["core"].(map[string]interface{})
+	} else {
+		dataRoot = (*data)["plugins"].(map[string]interface{})[plugin].(map[string]interface{})
+	}
+
+	var buffer string
+	for _, col := range *columns {
+		buffer += fmt.Sprint(dataRoot[col.keyName]) + delimeter
+	}
+
+	return strings.TrimSuffix(buffer, delimeter)
 }
 
 func handleErrors() {
