@@ -87,7 +87,11 @@ func getDataAsString(data *map[string]interface{}, plugin string, columns *[]col
 	if plugin == "" {
 		dataRoot = (*data)["core"].(map[string]interface{})
 	} else {
-		dataRoot = (*data)["plugins"].(map[string]interface{})[plugin].(map[string]interface{})
+		var found bool
+		dataRoot, found = (*data)["plugins"].(map[string]interface{})[plugin].(map[string]interface{})
+		if !found {
+			panic(fmt.Sprintf("The plugin \"%s\" was not found", plugin))
+		}
 	}
 
 	var buffer string
