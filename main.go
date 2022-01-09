@@ -25,7 +25,7 @@ func main() {
 
 	// CLI Arguments
 	delimeterFlag := flag.String("d", "", "The delimeter used to separate returned data. Prints table output by default")
-	headerFlag := flag.Bool("h", true, "Print the header row")
+	headerFlag := flag.Bool("h", false, "Do not print the header row")
 	pluginsFlag := flag.String("p", "", "A comma-separated list of plugin names to return information for. Use * to list all plugins")
 
 	columns := []column{
@@ -65,7 +65,7 @@ func main() {
 
 	// Conditionally print the header row
 	var header string
-	if *headerFlag {
+	if !*headerFlag {
 		for _, col := range columnsFiltered {
 			header += col.displayName + delimeter
 		}
