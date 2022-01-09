@@ -49,9 +49,6 @@ func main() {
 	if len(columnsFiltered) == 0 {
 		panic("The command requires at least one piece of data should be returned")
 	}
-	if len(columnsFiltered) == 1 {
-		*headerFlag = false
-	}
 
 	data := getUpdateData(sourceUrl)
 
