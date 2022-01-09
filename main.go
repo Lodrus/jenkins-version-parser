@@ -18,7 +18,7 @@ func main() {
 	defer handleErrors()
 
 	// CLI Arguments
-	PrintDelimeterFlag := flag.String("d", "", "The delimeter used to separate returned data. Prints table output by default")
+	delimeterFlag := flag.String("d", "", "The delimeter used to separate returned data. Prints table output by default")
 	headerFlag := flag.Bool("h", true, "Print the header row")
 	// PluginsFlag := flag.String("p", "", "A comma-separated list of plugin names to return information for. Use * to list all plugins")
 
@@ -60,10 +60,10 @@ func main() {
 	writer := tabwriter.NewWriter(os.Stdout, 0, 8, 4, ' ', 0)
 	delimeter = "\t"
 	defer writer.Flush()
-	if *PrintDelimeterFlag != "" {
+	if *delimeterFlag != "" {
 		// We still need a tabwriter object but this one will not add any spacing. Just a simple delimeter
-		writer = tabwriter.NewWriter(os.Stdout, 0, 0, 0, []byte(*PrintDelimeterFlag)[0], tabwriter.AlignRight)
-		delimeter = *PrintDelimeterFlag
+		writer = tabwriter.NewWriter(os.Stdout, 0, 0, 0, []byte(*delimeterFlag)[0], tabwriter.AlignRight)
+		delimeter = *delimeterFlag
 	}
 
 	// Header Row
